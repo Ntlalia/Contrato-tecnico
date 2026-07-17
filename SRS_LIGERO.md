@@ -1,4 +1,6 @@
-# Especificación de Requisitos (SRS) - Sistema Inventario
+# Especificación de Requisitos (SRS) 
+
+      ## Sistema Inventario
 
 ## Alcance y Fronteras del Software
 
@@ -31,7 +33,7 @@ El sistema será una plataforma web para la gestión de inventario de una tienda
 - **Disponibilidad**: El sistema debe estar accesible durante el horario operativo de la tienda para permitir el registro continuo de movimientos de inventario.
 - **Mantenibilidad**: El código y la estructura de la base de datos deben permitir agregar nuevas funcionalidades
 
- Historias de Usuario
+ Historias de Usuario de la tarea anterior.
 
 
 Pedido original del cliente
