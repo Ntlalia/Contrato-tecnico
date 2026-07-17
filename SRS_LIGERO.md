@@ -33,78 +33,96 @@ El sistema será una plataforma web para la gestión de inventario de una tienda
 - **Disponibilidad**: El sistema debe estar accesible durante el horario operativo de la tienda para permitir el registro continuo de movimientos de inventario.
 - **Mantenibilidad**: El código y la estructura de la base de datos deben permitir agregar nuevas funcionalidades
 
- Historias de Usuario de la tarea anterior.
+ Historias de Usuario de la tarea anterior, aplicadas a este ejemplo del inventario.
+
+ ### Pedido original del cliente
+"Hola, necesitamos una plataforma web para registrar nuestros productos. Queremos controlar las existencias de manera estricta y que avise cuando queden pocas unidades de algo. La base de datos debe ser PostgreSQL porque ya tenemos ese servidor configurado, y el sistema debe validar los códigos de barra de El Salvador."
+
+### Requisitos No Funcionales
+
+- **Consistencia de datos**: El sistema debe reflejar en todo momento el nivel real de existencias, sin discrepancias entre lo registrado y el stock físico.
+- **Persistencia**: Toda la información de productos e inventario debe almacenarse en PostgreSQL, motor de base de datos ya configurado por el cliente.
+- **Validación de entrada**: El sistema debe rechazar cualquier código de barras que no cumpla con el formato estándar de El Salvador.
+- **Alertas oportunas**: Las notificaciones de stock bajo deben generarse de forma inmediata al cruzar el umbral mínimo configurado.
+
+---
+
+### HU-01: Registrar un nuevo producto
+
+**COMO** encargado de la tienda
+**QUIERO** registrar un nuevo producto con su nombre, código de barras, cantidad y precio
+**PARA** mantener actualizado el catálogo de inventario
+
+**Escenario: Registro exitoso de un producto**
+```
+Dado que el encargado ha iniciado sesión en la plataforma
+Cuando ingresa nombre, código de barras válido, cantidad y precio, y presiona "Guardar"
+Entonces el sistema debe registrar el producto en la base de datos
+Y debe mostrar el producto en el listado de inventario
+```
+
+**Escenario: Intento de registro con código de barras inválido**
+```
+Dado que el encargado está registrando un nuevo producto
+Cuando ingresa un código de barras que no cumple el formato estándar de El Salvador
+Entonces el sistema debe rechazar el registro
+Y debe mostrar un mensaje indicando que el código de barras es inválido
+```
+
+---
+
+### HU-02: Recibir alerta de stock bajo
+
+**COMO** encargado de la tienda
+**QUIERO** recibir una alerta automática cuando un producto tenga pocas unidades
+**PARA** reabastecer a tiempo y no quedarme sin inventario
+
+**Escenario: El stock de un producto baja del umbral mínimo**
+```
+Dado que un producto tiene definido un umbral mínimo de existencias
+Cuando la cantidad disponible del producto cae por debajo de ese umbral
+Entonces el sistema debe generar una alerta visible para el encargado
+Y la alerta debe indicar el nombre del producto y la cantidad restante
+```
+
+**Escenario: El stock se mantiene por encima del umbral**
+```
+Dado que un producto tiene definido un umbral mínimo de existencias
+Cuando la cantidad disponible es igual o mayor a ese umbral
+Entonces el sistema no debe generar ninguna alerta
+```
+
+---
+
+### HU-03: Validar el código de barras al registrar un producto
+
+**COMO** encargado de la tienda
+**QUIERO** que el sistema valide automáticamente el formato del código de barras
+**PARA** evitar registrar productos con códigos incorrectos o duplicados
+
+**Escenario: Código de barras válido**
+```
+Dado que el encargado ingresa un código de barras con formato estándar de El Salvador
+Cuando presiona "Guardar"
+Entonces el sistema debe aceptar el código y continuar con el registro del producto
+```
+
+**Escenario: Código de barras duplicado**
+```
+Dado que el encargado ingresa un código de barras que ya existe en el inventario
+Cuando presiona "Guardar"
+Entonces el sistema debe rechazar el registro
+Y debe mostrar un mensaje indicando que el producto ya está registrado
+```
 
 
-Pedido original del cliente
-Dev, quiero que los choferes vean viajes cercanos en tiempo real, pero que sea seguro y no se roben los datos. Y que si aceptan, les diga la ruta más corta para no gastar gas. Ah, y que la app no se trabe si hay 1,000 personas al mismo tiempo.
-
-
-
-
-Requisitos No Funcionales
-
-
-Seguridad: Toda comunicación entre la app del chofer y el servidor debe ser cifrada (SSL/TLS), para evitar el robo  de datos.
-
-Rendimiento: El sistema debe soportar al menos 1,000 usuarios conectados de forma simultánea sin que la aplicación se caiga y afecte los tiempos de respuesta.
-
-Disponibilidad y Estabilidad: La aplicación no debe trabarse ni caerse bajo demasiados usuarios conectados simultáneamente .
-
-Tiempo real: La ubicación de los viajes cercanos debe actualizarse en tiempo real,  (latencia baja, idealmente menor a 3 segundos).
-
-
-
-Ver viajes cercanos en tiempo real
-
-COMO chofer registrado en la plataforma
-QUIERO: ver en tiempo real los viajes disponibles cerca de mi ubicación actual
-PARA: poder elegir y aceptar el viaje más conveniente sin perder tiempo
-
-
-Visualización de viajes cercanos en tiempo real
-
-  Escenario: El chofer puede ver viajes disponibles cerca de su ubicación
-    Dado que el chofer ha iniciado sesión y activó su ubicación GPS
-    Cuando existan viajes solicitados dentro de su radio
-    Entonces el sistema debe mostrar dichos viajes en el mapa en tiempo real
-    Y la lista debe actualizarse automáticamente sin que el chofer recargue la app
-
-  Escenario: No hay viajes cercanos disponibles
-    Dado que el chofer ha iniciado sesión y activó su ubicación GPS
-    Cuando no existan viajes solicitados dentro del radio configurado
-    Entonces el sistema debe mostrar un mensaje indicando que no hay viajes cercanos
-
-
-
-
-Recibir la ruta más corta al aceptar un viaje
-
-COMO: chofer que acepta un viaje
-QUIERO: que la aplicación me muestre automaticamente la ruta más corta hacia el punto de recogida
-PARA: ahorrar combustible y tiempo durante el trayecto
-
-
-
-Cálculo de la ruta más corta al aceptar un viaje
-
-  Escenario: El chofer acepta un viaje y recibe la ruta mas conveniente 
-    Dado que el chofer visualiza un viaje disponible
-    Cuando el chofer presiona el botón "Aceptar viaje"
-    Entonces el sistema debe calcular y mostrar la ruta más corta hacia el punto de recogida
-    Y la ruta debe considerar el tráfico actual para optimizar el consumo de combustible
-
-  Escenario: Falla el cálculo de ruta por pérdida de conexión
-    Dado que el chofer acepta un viaje
-    Cuando el sistema no logre calcular la ruta por falta de conexión a internet
-    Entonces la app debe notificar al chofer del error
-    Y debe permitir reintentar el cálculo de la ruta manualmente
 
 ##  Matriz de Trazabilidad
 
- ID Requisito    Descripción                                                     | Historia de Usuario | Prioridad |
 
-| RF-01          Validar código de barras formato El Salvador                    | HU-03                | Alta      |
-| RF-02         | Registrar productos con nombre, código, cantidad y precio       | HU-01                | Alta      |
-| RF-03         | Emitir alerta automática cuando el stock esté por debajo del mínimo | HU-02             | Alta      |
-| RNF-01        | Usar PostgreSQL como motor de base de datos obligatorio          | —                    | Alta      |
+| ID Requisito | Descripción                                                          | Historia de Usuario | Prioridad |
+|---------------|---------------------------------------------------------------    --|----------------------|-----------|
+| RF-01         | Validar código de barras formato El Salvador                        | HU-03                | Alta      |
+| RF-02         | Registrar productos con nombre, código, cantidad y precio           | HU-01                | Alta      |
+| RF-03         | Emitir alerta automática cuando el stock esté por debajo del mínimo | HU-02                | Alta      |
+| RNF-01        | Usar PostgreSQL como motor de base de datos obligatorio             | —                    | Alta      |
